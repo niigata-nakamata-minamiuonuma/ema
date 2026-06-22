@@ -1,31 +1,217 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>緊急速報エリアメール 送信システム</title>
-    <style>
-        body { font-family: sans-serif; margin: 50px; background: #f4f4f4; }
-        .container { background: white; padding: 30px; border-radius: 8px; max-width: 600px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        textarea { width: 100%; height: 150px; font-size: 16px; margin-bottom: 20px; }
-        button { background: #ff3b30; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
-        button:hover { background: #d32f2f; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FCM 緊急データメッセージ送信</title>
+  <style>
+    :root {
+      --bg-color: #f7f9fc;
+      --card-bg: #ffffff;
+      --danger-color: #d93025;
+      --danger-hover: #b0231a;
+      --text-color: #333;
+    }
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    h2 {
+      margin-top: 0;
+      color: var(--danger-color);
+      border-bottom: 3px solid var(--danger-color);
+      padding-bottom: 10px;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 1rem;
+      resize: vertical;
+    }
+    textarea:focus {
+      border-color: var(--danger-color);
+      outline: none;
+    }
+    .btn-submit {
+      width: 100%;
+      background-color: var(--danger-color);
+      color: white;
+      border: none;
+      padding: 15px;
+      font-size: 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(217, 48, 37, 0.2);
+      transition: all 0.2s;
+    }
+    .btn-submit:hover {
+      background-color: var(--danger-hover);
+      transform: translateY(-1px);
+    }
+    .btn-submit:active {
+      transform: translateY(1px);
+    }
+    pre {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+    .info-box {
+      background-color: #fce8e6;
+      color: #a51d24;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.24/jsrsasign-all-min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h2>⚠️ 緊急速報エリアメール送信システム</h2>
-        <form action="/send-alert" method="POST">
-            <label for="alertText">【配信本文】</label>
-            <textarea id="alertText" name="alertText">警戒レベル4避難指示を発令
 
-危険な場所から全員避難
+<div class="container">
+  <h2>🚨 FCM 緊急データメッセージ送信</h2>
+  <div class="info-box">※ログイン不要。ボタンを押すと全Android端末へ即時配信されます。</div>
 
-〇〇〇〇市から発令
-理由：△△川氾濫の恐れ高い
+  <div class="form-group">
+    <label for="alertBody">配信メッセージ本文</label>
+    <textarea id="alertBody" rows="8"></textarea>
+  </div>
 
-行動要請：今すぐ安全な場所へ避難</textarea>
-            <button type="submit">🚨 エリアメールを強制配信する</button>
-        </form>
-    </div>
+  <button class="btn-submit" onclick="generateTokenAndSend()">🚀 この内容で一斉配信を実行</button>
+
+  <h3>送信結果ログ</h3>
+  <pre id="response">待機中...</pre>
+</div>
+
+<script>
+  // ==========================================
+  // 【重要】Firebaseのサービスアカウント情報をここにコピペ
+  // ==========================================
+  const CONFIG = {
+    PROJECT_ID: "あなたのプロジェクトID",
+    CLIENT_EMAIL: "firebase-adminsdk-xxxxx@xxxx.iam.gserviceaccount.com",
+    // 💡 \n をそのまま扱えるよう、バッククォート（`）で囲んでください
+    PRIVATE_KEY: `-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC3...\n-----END PRIVATE KEY-----\n`
+  };
+
+  // 初期テキストをセット
+  document.getElementById('alertBody').value = "警戒レベル4避難指示を発令\n\n危険な場所から全員避難\n\n〇〇〇〇市から発令\n理由：△△川氾濫の恐れ高い\n\n行動要請：今すぐ安全な場所へ避難";
+
+  /**
+   * サービスアカウントの秘密鍵から、OAuth2.0のアクセストークンを純粋にJavaScriptだけで生成する
+   */
+  function getAccessToken() {
+    const header = { alg: 'RS256', typ: 'JWT' };
+    const now = Math.floor(Date.now() / 1000);
+    
+    const payload = {
+      iss: CONFIG.CLIENT_EMAIL,
+      sub: CONFIG.CLIENT_EMAIL,
+      aud: 'https://oauth2.googleapis.com/token',
+      iat: now,
+      exp: now + 3600, // 1時間有効
+      scope: 'https://www.googleapis.com/auth/firebase.messaging'
+    };
+
+    // jsrsasignライブラリを使って署名（JWTを生成）
+    const jwt = KJUR.jws.JWS.sign("RS256", JSON.stringify(header), JSON.stringify(payload), CONFIG.PRIVATE_KEY);
+
+    // GoogleのTokenエンドポイントに変えてアクセストークンを要求
+    return fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`
+    })
+    .then(res => res.json())
+    .then(data => data.access_token);
+  }
+
+  /**
+   * トークンを取得して、そのままFCMへデータメッセージを送信する
+   */
+  async function generateTokenAndSend() {
+    const responseEl = document.getElementById('response');
+    const alertBodyText = document.getElementById('alertBody').value;
+
+    if (!CONFIG.PROJECT_ID || CONFIG.PROJECT_ID.includes("あなたの")) {
+      alert("CONFIGの初期設定を行ってください。");
+      return;
+    }
+
+    if (!confirm("本当に送信しますか？（全ユーザーの端末に即時届きます）")) {
+      return;
+    }
+
+    try {
+      responseEl.textContent = "認証トークンを自動生成中...";
+      const token = await getAccessToken();
+
+      responseEl.textContent = "FCMへデータメッセージを送信中...";
+      
+      // 送信用JSONの組み立て
+      const fcmPayload = {
+        "message": {
+          "topic": "all_users",
+          "data": {
+            "ALERT_BODY": alertBodyText
+          },
+          "android": {
+            "priority": "high",
+            "ttl": "0s"
+          }
+        }
+      };
+
+      // FCM送信
+      const url = `https://fcm.googleapis.com/v1/projects/${CONFIG.PROJECT_ID}/messages:send`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(fcmPayload)
+      });
+
+      const result = await response.json();
+      responseEl.textContent = `【送信結果: ${response.status}】\n` + JSON.stringify(result, null, 2);
+
+    } catch (e) {
+      responseEl.textContent = "エラーが発生しました:\n" + e.message;
+    }
+  }
+</script>
 </body>
 </html>
