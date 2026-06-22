@@ -117,20 +117,19 @@
 
 <script>
   // ==========================================
-  // 【重要】Firebaseのサービスアカウント情報をここにコピペ
+  // 提供いただいたFirebaseのサービスアカウント情報を設定済み
   // ==========================================
   const CONFIG = {
-    PROJECT_ID: "あなたのプロジェクトID",
-    CLIENT_EMAIL: "firebase-adminsdk-xxxxx@xxxx.iam.gserviceaccount.com",
-    // 💡 \n をそのまま扱えるよう、バッククォート（`）で囲んでください
-    PRIVATE_KEY: `-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC3...\n-----END PRIVATE KEY-----\n`
+    PROJECT_ID: "emapp-3fa37",
+    CLIENT_EMAIL: "firebase-adminsdk-fbsvc@emapp-3fa37.iam.gserviceaccount.com",
+    PRIVATE_KEY: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDXe9lrF8BmcdmT\nCSnMW+bZyI11F85RXI/QQlyYDDdRIX3paoEC28PbD7LSVS6cidIXpMuviOyyXqaA\nRpjCm/nFJBFdv2sNDh1jM8FujFDig4gfA0wx0lj7kkr9+daCe3lIGaG2OC/OAVss\n/tmAlCK9kGgk1VRUAvGqTFBaPamBpDB5vgv6s/7ZOe2nSqpECV9+4iIJTr4u24Uf\n4C6Jgw4JSTkyK0E/cQBAS1mSG3pVcPaBPei9jEdUo+Ah8CPN1vT5KjI+PKl+m9nx\nuwHASBmRo9IR+V/MqLPG/OzfSHAF8Nn+MsXv9pfIKGHlCsqsBsIAERdz2Bc5Vdtb\nfwqGhIffAgMBAAECggEASWufhwfOvJkqIxlKLqFZpPbai/0ShVJehf02g3AWIQSi\nXDe3wXuT3j4ZFeWEPj4PYZL6+9JRo+zwGmDzh8uRbQR/Dkw8c3RNuxFVZQ9WN/fN\nF5QOECO1wfH0r1jDKC5eAp0JJoc6cpyvrkMfZNoUhDaB5ZryYrWmFfpunnDIIq1o\nd5misuH9mrKK8z+fD3WImSzkz5J/bysu0VMdfnp0FjiIBZkLO6S1l4nZHYtycJyc\neFJEHsnbPC/YKxf9se0+nKC7715DM0Fx4zGF1OyvX7R2A7f7u0BgqJw9an4HuIPb\nQgDHORy8E6RqE0G7qVB2c9b8sO6XTkxF0SM4CxYOwQKBgQD9rC+JWRYc5a9RmC5p\n+zCOq5TpKRLumPG3aL5HYnzqliXJnS/giwi2jUr0KSl8KxJ56ezj58J0zZ5V5/Bh\nmlqy5no5H7soJdwuZjw+FteD85m023z0wf/grxxrLrCbxmtAR/Jh45bcxdnbhdas\npdnZj15AnAumgBEgiH6wKXIMEQKBgQDZdfeuZX1Rcjiqh4x76POwB3KSxj2E3U52\nDYGHkSOYcpqd8UfzTbXACCpfCu5HTsSZYQM9RhIplmrbtGoAaGrNmJ86iKn300XW\nF+r5+Z2otmoqgm0bpeLbv8BWUrS9Z6ESXWbriS0FdFlT3Q/bOHTz8m+m2pqowGGY\nh43DpisE7wKBgQCkWlPuPA7sqA+f4OZpefqq5RY0vozqk6NAPpfRrkjawG85IiNr\n6wi5JfAjIywiq9FrtZjqzDSb8sCcTgrbYeNTt6oGqr1atLTkRw7O94OolULH/9EE\nz1CWZT4XX4fDVZoVasfqjkcnQPT2ms9MyqPLpmzdlXyi4qS2HFlgj2m50QKBgCQO\n5pH5bC08Jl9IeKf3OakfowTpcDv+wkra9HZ5P5DAuBimcIrMgO2lrPjzhA0452qT\nZokbfFl/ApsJsGX+6m7K9uQq0xwv4S2d662lkVnvXW1NETB7ckGD6y2lKykY7OFx\nsWYu6dM0trcsObvdAa+NrKvbJbgDpms3Vu9xN0LrAoGADVbAzlGjaEPAVnVQragQ\nbaVJMPUzB+1lDyB3jjemXPaxrh7PMQA4vYuKdttXtY7yMhZ3USbrackVH5su63yS\nS2e39gtBbepnTFwAvib+6fppUJkvB+21KlioVgmssHqlJ+GWoA9o4xozfN664BtI\n11OT3w2qo2IizJUuENFd7J4=\n-----END PRIVATE KEY-----\n"
   };
 
-  // 初期テキストをセット
+  // 初期メッセージ設定
   document.getElementById('alertBody').value = "警戒レベル4避難指示を発令\n\n危険な場所から全員避難\n\n〇〇〇〇市から発令\n理由：△△川氾濫の恐れ高い\n\n行動要請：今すぐ安全な場所へ避難";
 
   /**
-   * サービスアカウントの秘密鍵から、OAuth2.0のアクセストークンを純粋にJavaScriptだけで生成する
+   * 認証トークン（JWT）をブラウザ側で生成する
    */
   function getAccessToken() {
     const header = { alg: 'RS256', typ: 'JWT' };
@@ -141,46 +140,48 @@
       sub: CONFIG.CLIENT_EMAIL,
       aud: 'https://oauth2.googleapis.com/token',
       iat: now,
-      exp: now + 3600, // 1時間有効
+      exp: now + 3600,
       scope: 'https://www.googleapis.com/auth/firebase.messaging'
     };
 
-    // jsrsasignライブラリを使って署名（JWTを生成）
-    const jwt = KJUR.jws.JWS.sign("RS256", JSON.stringify(header), JSON.stringify(payload), CONFIG.PRIVATE_KEY);
+    // \n などの文字列をエスケープ解除して正しい秘密鍵の形にする
+    const formattedPrivateKey = CONFIG.PRIVATE_KEY.replace(/\\n/g, '\n');
 
-    // GoogleのTokenエンドポイントに変えてアクセストークンを要求
+    // JWTの署名実行
+    const jwt = KJUR.jws.JWS.sign("RS256", JSON.stringify(header), JSON.stringify(payload), formattedPrivateKey);
+
     return fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`
     })
     .then(res => res.json())
-    .then(data => data.access_token);
+    .then(data => {
+      if (data.error) {
+        throw new Error(data.error_description || data.error);
+      }
+      return data.access_token;
+    });
   }
 
   /**
-   * トークンを取得して、そのままFCMへデータメッセージを送信する
+   * 送信処理メイン
    */
   async function generateTokenAndSend() {
     const responseEl = document.getElementById('response');
     const alertBodyText = document.getElementById('alertBody').value;
 
-    if (!CONFIG.PROJECT_ID || CONFIG.PROJECT_ID.includes("あなたの")) {
-      alert("CONFIGの初期設定を行ってください。");
-      return;
-    }
-
-    if (!confirm("本当に送信しますか？（全ユーザーの端末に即時届きます）")) {
+    if (!confirm("本当に一斉配信を実行しますか？")) {
       return;
     }
 
     try {
-      responseEl.textContent = "認証トークンを自動生成中...";
+      responseEl.textContent = "認証トークンを生成中...";
       const token = await getAccessToken();
 
       responseEl.textContent = "FCMへデータメッセージを送信中...";
       
-      // 送信用JSONの組み立て
+      // 完全Android特化型（notificationなしデータメッセージ）
       const fcmPayload = {
         "message": {
           "topic": "all_users",
@@ -194,7 +195,6 @@
         }
       };
 
-      // FCM送信
       const url = `https://fcm.googleapis.com/v1/projects/${CONFIG.PROJECT_ID}/messages:send`;
       const response = await fetch(url, {
         method: 'POST',
