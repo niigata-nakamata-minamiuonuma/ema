@@ -26,7 +26,6 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       overflow: hidden;
     }
-    /* タブヘッダー */
     .tabs {
       display: flex;
       background: #eee;
@@ -45,7 +44,6 @@
       background: var(--primary-color);
       color: #fff;
     }
-    /* コンテンツエリア */
     .tab-content {
       display: none;
       padding: 30px;
@@ -89,7 +87,6 @@
       color: #666;
       margin-top: 4px;
     }
-    /* グループ選択のUI */
     .group-selector {
       display: flex;
       gap: 10px;
@@ -120,7 +117,6 @@
       font-size: 0.85rem;
       cursor: pointer;
     }
-    /* ボタン関連 */
     .btn {
       padding: 10px 20px;
       font-size: 1rem;
@@ -131,8 +127,6 @@
     }
     .btn-primary { background: var(--primary-color); color: #fff; }
     .btn-danger { background: var(--danger-color); color: #fff; width: 100%; padding: 15px; font-size: 1.2rem; }
-    .btn-secondary { background: #6c757d; color: #fff; }
-    /* 履歴テーブル */
     .history-table {
       width: 100%;
       border-collapse: collapse;
@@ -164,7 +158,7 @@
         <th>情報種別</th>
         <td>
           <select id="infoType">
-            <option value="イベント情報">緊急速報</option>
+            <option value="緊急速報">緊急速報</option>
           </select>
         </td>
       </tr>
@@ -213,26 +207,22 @@
   </div>
 
   <div id="template-tab" class="tab-content">
-    <h2>定型文追加・管理</h2>
-    <table class="form-table">
-      <tr>
-        <th>定型文タイトル</th>
-        <td><input type="text" id="newTplTitle" placeholder="例：地震発生時の案内"></td>
-      </tr>
-      <tr>
-        <th>定型文件名</th>
-        <td><input type="text" id="newTplSubject" placeholder="デフォルトの件名"></td>
-      </tr>
-      <tr>
-        <th>定型文本文</th>
-        <td><textarea id="newTplBody" rows="6" placeholder="デフォルトの本文"></textarea></td>
-      </tr>
+    <h2>登録されている定型文一覧</h2>
+    <p style="font-size:0.9rem; color:#666;">※新しい定型文を全端末に共通で追加したい場合は、HTMLファイルのコード内の「templates」配列に直接書き込んでください。</p>
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>タイトル</th>
+          <th>件名</th>
+          <th>本文</th>
+        </tr>
+      </thead>
+      <tbody id="templateListLog"></tbody>
     </table>
-    <button class="btn btn-primary" onclick="saveNewTemplate()">定型文を保存・追加</button>
   </div>
 
   <div id="history-tab" class="tab-content">
-    <h2>配信履歴</h2>
+    <h2>配信履歴 (この端末のみ)</h2>
     <table class="history-table">
       <thead>
         <tr>
@@ -253,24 +243,33 @@
 </div>
 
 <script>
-  // ==========================================
-  // 【設定】Firebaseの秘密鍵情報をここにセット
-  // ==========================================
   const CONFIG = {
     PROJECT_ID: "emapp-3fa37",
     CLIENT_EMAIL: "firebase-adminsdk-fbsvc@emapp-3fa37.iam.gserviceaccount.com",
-    PRIVATE_KEY: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDXe9lrF8BmcdmT\nCSnMW+bZyI11F85RXI/QQlyYDDdRIX3paoEC28PbD7LSVS6cidIXpMuviOyyXqaA\nRpjCm/nFJBFdv2sNDh1jM8FujFDig4gfA0wx0lj7kkr9+daCe3lIGaG2OC/OAVss\n/tmAlCK9kGgk1VRUAvGqTFBaPamBpDB5vgv6s/7ZOe2nSqpECV9+4iIJTr4u24Uf\n4C6Jgw4JSTkyK0E/cQBAS1mSG3pVcPaBPei9jEdUo+Ah8CPN1vT5KjI+PKl+m9nx\nuwHASBmRo9IR+V/MqLPG/OzfSHAF8Nn+MsXv9pfIKGHlCsqsBsIAERdz2Bc5Vdtb\nfwqGhIffAgMBAAECggEASWufhwfOvJkqIxlKLqFZpPbai/0ShVJehf02g3AWIQSi\nXDe3wXuT3j4ZFeWEPj4PYZL6+9JRo+zwGmDzh8uRbQR/Dkw8c3RNuxFVZQ9WN/fN\nF5QOECO1wfH0r1jDKC5eAp0JJoc6cpyvrkMfZNoUhDaB5ZryYrWmFfpunnDIIq1o\nd5misuH9mrKK8z+fD3WImSzkz5J/bysu0VMdfnp0FjiIBZkLO6S1l4nZHYtycJyc\neFJEHsnbPC/YKxf9se0+nKC7715DM0Fx4zGF1OyvX7R2A7f7u0BgqJw9an4HuIPb\nQgDHORy8E6RqE0G7qVB2c9b8sO6XTkxF0SM4CxYOwQKBgQD9rC+JWRYc5a9RmC5p\n+zCOq5TpKRLumPG3aL5HYnzqliXJnS/giwi2jUr0KSl8KxJ56ezj58J0zZ5V5/Bh\nmlqy5no5H7soJdwuZjw+FteD85m023z0wf/grxxrLrCbxmtAR/Jh45bcxdnbhdas\npdnZj15AnAumgBEgiH6wKXIMEQKBgQDZdfeuZX1Rcjiqh4x76POwB3KSxj2E3U52\nDYGHkSOYcpqd8UfzTbXACCpfCu5HTsSZYQM9RhIplmrbtGoAaGrNmJ86iKn300XW\nF+r5+Z2otmoqgm0bpeLbv8BWUrS9Z6ESXWbriS0FdFlT3Q/bOHTz8m+m2pqowGGY\nh43DpisE7wKBgQCkWlPuPA7sqA+f4OZpefqq5RY0vozqk6NAPpfRrkjawG85IiNr\n6wi5JfAjIywiq9FrtZjqzDSb8sCcTgrbYeNTt6oGqr1atLTkRw7O94OolULH/9EE\nz1CWZT4XX4fDVZoVasfqjkcnQPT2ms9MyqPLpmzdlXyi4qS2HFlgj2m50QKBgCQO\n5pH5bC08Jl9IeKf3OakfowTpcDv+wkra9HZ5P5DAuBimcIrMgO2lrPjzhA0452qT\nZokbfFl/ApsJsGX+6m7K9uQq0xwv4S2d662lkVnvXW1NETB7ckGD6y2lKykY7OFx\nsWYu6dM0trcsObvdAa+NrKvbJbgDpms3Vu9xN0LrAoGADVbAzlGjaEPAVnVQragQ\nbaVJMPUzB+1lDyB3jjemXPaxrh7PMQA4vYuKdttXtY7yMhZ3USbrackVH5su63yS\nS2e39gtBbepnTFwAvib+6fppUJkvB+21KlioVgmssHqlJ+GWoA9o4xozfN664BtI\n11OT3w2qo2IizJUuENFd7J4=\n-----END PRIVATE KEY-----\n"
+    PRIVATE_KEY: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDXe9lrF8BmcdmT\nCSnMW+bZyI11F85RXI/QQlyYDDdRIX3paoEC28PbD7LSVS6cidIXpMuviOyyXqaA\nRpjCm/nFJBFdv2sNDh1jM8FujFDig4gfA0wx0lj7kkr9+daCe3lIGaG2OC/OAVss\n/tmAlCK9kGgk1VRUAvGqTFBaPamBpDB5vgv6s/7ZOe2nSqpECV9+4iIJTr4u24Uf\n4C6Jgw4JSTkyK0E/cQBAS1mSG3pVcPaBPei9jEdUo+Ah8CPN1vT5KjI+PKl+m9nx\nuwHASBmRo9IR+V/MqLPG/OzfSHAF8Nn+MsXv9pfIKGHlCsqsBsIAERdz2Bc5Vdtb\nfwqGhIffAgMBAAECggEASWufhwfOvJkqIxlKLqFZpPbai/0ShVJehf02g3AWIQSi\nXDe3wXuT3j4ZFeWEPj4PYZL6+9JRo+zwGmDzh8uRbQR/Dkw8c3RNuxFVZQ9WN/fN\nF5QOECO1wfH0r1jDKC5eAp0JJoc6cpyvrkMfZNoUhDaB5ZryYrWmFfpunnDIIq1o\nd5misuH9mrKK8z+fD3WImSzkz5J/bysu0VMdfnp0FjiIBZkLO6S1l4nZHYtycJyc\neFJEHsnbPC/YKxf9se0+nKC7715DM0Fx4zGF1OyvX7R2A7f7u0BgqJw9an4HuIPb\QgDHORy8E6RqE0G7qVB2c9b8sO6XTkxF0SM4CxYOwQKBgQD9rC+JWRYc5a9RmC5p\n+zCOq5TpKRLumPG3aL5HYnzqliXJnS/giwi2jUr0KSl8KxJ56ezj58J0zZ5V5/Bh\nmlqy5no5H7soJdwuZjw+FteD85m023z0wf/grxxrLrCbxmtAR/Jh45bcxdnbhdas\npdnZj15AnAumgBEgiH6wKXIMEQKBgQDZdfeuZX1Rcjiqh4x76POwB3KSxj2E3U52\nDYGHkSOYcpqd8UfzTbXACCpfCu5HTsSZYQM9RhIplmrbtGoAaGrNmJ86iKn300XW\nF+r5+Z2otmoqgm0bpeLbv8BWUrS9Z6ESXWbriS0FdFlT3Q/bOHTz8m+m2pqowGGY\nh43DpisE7wKBgQCkWlPuPA7sqA+f4OZpefqq5RY0vozqk6NAPpfRrkjawG85IiNr\n6wi5JfAjIywiq9FrtZjqzDSb8sCcTgrbYeNTt6oGqr1atLTkRw7O94OolULH/9EE\nz1CWZT4XX4fDVZoVasfqjkcnQPT2ms9MyqPLpmzdlXyi4qS2HFlgj2m50QKBgCQO\n5pH5bC08Jl9IeKf3OakfowTpcDv+wkra9HZ5P5DAuBimcIrMgO2lrPjzhA0452qT\nZokbfFl/ApsJsGX+6m7K9uQq0xwv4S2d662lkVnvXW1NETB7ckGD6y2lKykY7OFx\nsWYu6dM0trcsObvdAa+NrKvbJbgDpms3Vu9xN0LrAoGADVbAzlGjaEPAVnVQragQ\nbaVJMPUzB+1lDyB3jjemXPaxrh7PMQA4vYuKdttXtY7yMhZ3USbrackVH5su63yS\nS2e39gtBbepnTFwAvib+6fppUJkvB+21KlioVgmssHqlJ+GWoA9o4xozfN664BtI\n11OT3w2qo2IizJUuENFd7J4=\n-----END PRIVATE KEY-----\n"
   };
 
-  // 初期定型文データ
+  // ==========================================
+  // 💡【ここに共有したい定型文を好きなだけ追加してください】
+  // ==========================================
   let templates = [
-    { title: "地震情報(デフォルト)", subject: "地震について", body: "ただいま、大きな地震がありました。\n皆さん、落ち着いて、火の始末をしてください。\nあわてて、外に飛び出すのは危険です。\n海岸にいる人は、津波に注意し、海岸から離れましょう。\nがけくずれ、落石などに注意し、危険な場所から離れましょう。\nなお、詳しい情報は、テレビ、ラジオなどで確認してください。" }
+    { 
+      title: "【避難】大雨・河川氾濫", 
+      subject: "避難指示（緊急）発令", 
+      body: "警戒レベル4避難指示を発令しました。\n\n危険な場所から全員速やかに避難してください。\n\n理由：〇〇川氾濫の恐れが高いため\n行動要請：今すぐ近くの安全な避難所か、建物の2階以上に避難してください。" 
+    },
+    { 
+      title: "【地震】警戒・火の始末", 
+      subject: "地震発生に伴う注意喚起", 
+      body: "ただいま、大きな地震がありました。\n皆さん、落ち着いて火の始末をしてください。\nあわてて外に飛び出すのは危険です。\n詳しい情報はテレビ、ラジオなどで確認してください。" 
+    }
+    // カンマ（,）で区切ってここから下に同じ形式で増やせます
   ];
 
-  let histories = [];
+  // 履歴はブラウザを閉じても「その端末」にだけ残るようにします
+  let histories = JSON.parse(localStorage.getItem('fcm_histories')) || [];
   let tempSelectedTopic = null;
 
-  // タブ切り替えロジック
   function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -278,53 +277,44 @@
     event.currentTarget.classList.add('active');
   }
 
-  // 文字数カウンター
   function updateCounter() {
     const len = document.getElementById('body').value.length;
     document.getElementById('charCounter').textContent = `${len}文字`;
   }
 
-  // 定型文の初期ロードとセレクトボックス反映
   function renderTemplateSelect() {
     const select = document.getElementById('templateSelect');
     select.innerHTML = '<option value="">-- 登録された定型文から選択 --</option>';
+    
+    const listLog = document.getElementById('templateListLog');
+    listLog.innerHTML = "";
+
     templates.forEach((tpl, index) => {
+      // セレクトボックスへの追加
       const opt = document.createElement('option');
       opt.value = index;
       opt.textContent = tpl.title;
       select.appendChild(opt);
+
+      // 設定タブの確認一覧への追加
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><b>${tpl.title}</b></td><td>${tpl.subject}</td><td><small>${tpl.body.replace(/\n/g, '<br>')}</small></td>`;
+      listLog.appendChild(tr);
     });
   }
 
   function loadTemplate(index) {
-    if(index === "") return;
+    if(index === "") {
+      document.getElementById('subject').value = "";
+      document.getElementById('body').value = "";
+      updateCounter();
+      return;
+    }
     document.getElementById('subject').value = templates[index].subject;
     document.getElementById('body').value = templates[index].body;
     updateCounter();
   }
 
-  // 定型文の新規保存
-  function saveNewTemplate() {
-    const title = document.getElementById('newTplTitle').value.trim();
-    const subject = document.getElementById('newTplSubject').value.trim();
-    const body = document.getElementById('newTplBody').value.trim();
-
-    if(!title || !body) return alert("タイトルと本文は必須です");
-
-    templates.push({ title, subject, body });
-    renderTemplateSelect();
-    
-    // リセットして送信タブへ
-    document.getElementById('newTplTitle').value = "";
-    document.getElementById('newTplSubject').value = "";
-    document.getElementById('newTplBody').value = "";
-    alert("定型文を追加しました");
-    switchTab('send-tab');
-    document.querySelectorAll('.tab-btn')[0].classList.add('active');
-    document.querySelectorAll('.tab-btn')[1].classList.remove('active');
-  }
-
-  // グループ選択UIのコントロール
   function toggleSelectGroup(element, topicId) {
     document.querySelectorAll('.group-item').forEach(el => el.classList.remove('selected'));
     element.classList.add('selected');
@@ -334,7 +324,6 @@
   function addGroups() {
     if(!tempSelectedTopic) return;
     const selectedBox = document.getElementById('selectedGroups');
-    // 重複チェック
     if(document.getElementById(`sel-${tempSelectedTopic}`)) return;
 
     const div = document.createElement('div');
@@ -353,7 +342,6 @@
     if(selected) selected.remove();
   }
 
-  // JWTトークン取得ロジック
   function getAccessToken() {
     const header = { alg: 'RS256', typ: 'JWT' };
     const now = Math.floor(Date.now() / 1000);
@@ -374,7 +362,6 @@
     }).then(res => res.json()).then(data => data.access_token);
   }
 
-  // FCM一斉配信
   async function sendEmergencyMessage() {
     const infoType = document.getElementById('infoType').value;
     const subject = document.getElementById('subject').value;
@@ -386,13 +373,11 @@
 
     if(!confirm("【警告】本当に緊急一斉配信を実行しますか？")) return;
 
-    // 選択された最初のグループ（トピック）に配信
     const targetTopic = targetGroups[0].textContent;
 
     try {
       const token = await getAccessToken();
       
-      // 完全Androidデータメッセージ構造
       const fcmPayload = {
         "message": {
           "topic": targetTopic,
@@ -418,7 +403,6 @@
       const result = await response.json();
       const statusText = response.status === 200 ? "成功" : "失敗";
       
-      // 履歴へ追加
       addHistory(infoType, subject, targetTopic, statusText);
       alert(`配信処理が完了しました。ステータス: ${statusText}`);
 
@@ -428,20 +412,37 @@
   }
 
   function addHistory(type, subject, target, status) {
-    const tbody = document.getElementById('historyLog');
-    if(histories.length === 0) tbody.innerHTML = ""; // 初期メッセージクリア
-
     const now = new Date().toLocaleString('ja-JP');
     histories.push({ now, type, subject, target, status });
+    localStorage.setItem('fcm_histories', JSON.stringify(histories));
+    renderHistoryTable();
+  }
 
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${now}</td><td>${type}</td><td>${subject}</td><td>${target}</td><td style="font-weight:bold;color:${status==='成功'?'green':'red'}">${status}</td>`;
-    tbody.insertBefore(tr, tbody.firstChild); // 最新を上に
+  function renderHistoryTable() {
+    const tbody = document.getElementById('historyLog');
+    if (histories.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999;">履歴はありません</td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = "";
+    for (let i = histories.length - 1; i >= 0; i--) {
+      const h = histories[i];
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${h.now}</td>
+        <td>${h.type}</td>
+        <td>${h.subject}</td>
+        <td>${h.target}</td>
+        <td style="font-weight:bold;color:${h.status==='成功'?'green':'red'}">${h.status}</td>
+      `;
+      tbody.appendChild(tr);
+    }
   }
 
   // 初期実行
   renderTemplateSelect();
-  loadTemplate(0);
+  renderHistoryTable();
 </script>
 </body>
 </html>
