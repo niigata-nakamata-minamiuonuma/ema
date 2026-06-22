@@ -164,9 +164,7 @@
         <th>情報種別</th>
         <td>
           <select id="infoType">
-            <option value="防災情報">防災情報</option>
-            <option value="防犯情報">防犯情報</option>
-            <option value="イベント情報">イベント情報</option>
+            <option value="イベント情報">緊急速報</option>
           </select>
         </td>
       </tr>
@@ -197,8 +195,6 @@
               <div class="form-label" style="font-size:0.8rem;color:#666;">対象グループ</div>
               <div id="availableGroups" class="group-box">
                 <div class="group-item" onclick="toggleSelectGroup(this, 'all_users')">全体配信 (all_users)</div>
-                <div class="group-item" onclick="toggleSelectGroup(this, 'group_shimin')">市民課</div>
-                <div class="group-item" onclick="toggleSelectGroup(this, 'group_bousai')">危機管理課</div>
               </div>
             </div>
             <div class="group-btns">
@@ -213,7 +209,7 @@
         </td>
       </tr>
     </table>
-    <button class="btn btn-danger" onclick="sendEmergencyMessage()">🚀 この内容で一斉配信を実行 (FCM)</button>
+    <button class="btn btn-danger" onclick="sendEmergencyMessage()">一斉配信 (FCM)</button>
   </div>
 
   <div id="template-tab" class="tab-content">
@@ -232,7 +228,7 @@
         <td><textarea id="newTplBody" rows="6" placeholder="デフォルトの本文"></textarea></td>
       </tr>
     </table>
-    <button class="btn btn-primary" onclick="saveNewTemplate()">💾 定型文を保存・追加</button>
+    <button class="btn btn-primary" onclick="saveNewTemplate()">定型文を保存・追加</button>
   </div>
 
   <div id="history-tab" class="tab-content">
