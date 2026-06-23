@@ -6,127 +6,273 @@
   <title>防災・緊急情報 配信管理システム</title>
   <style>
     :root {
-      --primary-color: #1a73e8;
-      --danger-color: #d93025;
-      --border-color: #ccc;
-      --bg-color: #f8f9fa;
+      --primary-blue: #0044bb;
+      --danger-red: #d93025;
+      --bg-dark-gray: #7a7a7a;
+      --bg-light-gray: #f4f4f4;
+      --border-gray: #ccc;
+      --text-color: #333;
     }
     body {
       font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-      background-color: var(--bg-color);
+      background-color: #e6e6e6;
       margin: 0;
-      padding: 20px;
-      color: #333;
+      padding: 10px;
+      color: var(--text-color);
+      font-size: 13px;
     }
-    .wrapper {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      overflow: hidden;
-    }
-    .tabs {
+
+    /* 最上部ナビゲーションヘッダー */
+    .top-nav {
       display: flex;
-      background: #eee;
-      border-bottom: 2px solid var(--primary-color);
+      background: #e6e6e6;
+      border: 1px solid #b5b5b5;
+      padding: 2px;
+      gap: 2px;
+      align-items: center;
     }
-    .tab-btn {
-      padding: 15px 25px;
-      border: none;
-      background: none;
-      font-size: 1rem;
+    .top-nav-btn {
+      padding: 6px 14px;
+      border: 1px solid #999;
+      background: linear-gradient(to bottom, #ffffff, #e6e6e6);
+      font-size: 13px;
       font-weight: bold;
+      color: var(--primary-blue);
       cursor: pointer;
-      color: #555;
+      border-radius: 3px;
     }
-    .tab-btn.active {
-      background: var(--primary-color);
-      color: #fff;
+    .top-nav-btn.alert-btn {
+      color: #cc0000;
+    }
+    .top-nav-btn.active {
+      background: linear-gradient(to bottom, #ffffff, #dcdcdc);
+      border-color: #666;
+      color: red; /* 「設定」タブなどのアクティブ色 */
+    }
+
+    /* メインコンテナ（3カラムレイアウトベース） */
+    .main-container {
+      display: grid;
+      grid-template-columns: 160px 180px 1fr;
+      gap: 10px;
+      margin-top: 10px;
+      background: #fff;
+      border: 1px solid #b5b5b5;
+      padding: 10px;
+      min-height: 600px;
+    }
+
+    /* 左カラム：グループツリー風 */
+    .left-col {
+      border-right: 1px solid #ddd;
+      padding-right: 5px;
+    }
+    .col-title {
+      font-size: 11px;
+      color: #666;
+      padding: 3px;
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      margin-bottom: 5px;
+    }
+    .group-tree-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .group-tree-item {
+      padding: 5px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+    }
+    .group-tree-item:hover, .group-tree-item.active {
+      background-color: #d0d0d0;
+      font-weight: bold;
+    }
+
+    /* 中央カラム：連絡先一覧（多言語）風 */
+    .center-col {
+      border-right: 1px solid #ddd;
+      padding-right: 5px;
+    }
+    .contact-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .contact-table th {
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      padding: 4px;
+      text-align: left;
+    }
+    .contact-table td {
+      padding: 10px 5px;
+      color: #999;
+      font-size: 12px;
+    }
+
+    /* 右カラム：メインコンテンツ・フォームエリア */
+    .right-col {
+      padding-left: 5px;
+    }
+
+    /* アクションボタンバー */
+    .action-bar {
+      margin-bottom: 15px;
+    }
+    .btn-sys {
+      padding: 5px 20px;
+      border: 1px solid #999;
+      background: linear-gradient(to bottom, #ffffff, #e6e6e6);
+      cursor: pointer;
+      border-radius: 3px;
+      font-size: 12px;
+      margin-right: 5px;
+    }
+    .btn-sys:hover {
+      background: #f0f0f0;
+    }
+
+    /* 内部タブ切替（コンテンツエリア用） */
+    .content-tab-wrapper {
+      margin-top: 10px;
     }
     .tab-content {
       display: none;
-      padding: 30px;
     }
     .tab-content.active {
       display: block;
     }
-    h2 {
-      margin-top: 0;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 10px;
-      color: var(--primary-color);
-    }
-    .form-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    .form-table th, .form-table td {
-      padding: 12px;
-      border-bottom: 1px solid #eee;
-      text-align: left;
-      vertical-align: top;
-    }
-    .form-table th {
-      width: 200px;
-      background: #f1f3f4;
+
+    /* 入力フォームのテーブルスタイル（画像再現） */
+    .form-section-title {
       font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 14px;
     }
+    .required-label {
+      color: red;
+      font-size: 11px;
+      margin-left: 3px;
+    }
+
+    .form-grid {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    .form-row {
+      display: flex;
+      margin-bottom: 10px;
+      align-items: flex-start;
+    }
+    .form-label-cell {
+      width: 110px;
+      font-weight: bold;
+      padding-top: 5px;
+    }
+    .form-value-cell {
+      flex: 1;
+    }
+
+    /* 内包されるグレーの枠線ボックス群 */
+    .inner-border-box {
+      border: 1px solid var(--border-gray);
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #fff;
+    }
+
+    /* 入力パーツ */
     input[type="text"], textarea, select {
       width: 100%;
-      padding: 8px;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
+      max-width: 400px;
+      padding: 4px;
+      border: 1px solid var(--border-gray);
       box-sizing: border-box;
-      font-size: 1rem;
+      font-size: 13px;
     }
-    .counter {
-      text-align: right;
-      font-size: 0.85rem;
-      color: #666;
-      margin-top: 4px;
+    textarea {
+      max-width: 100%;
     }
-    .group-selector {
+    
+    /* 複数並ぶインプット用（メールアドレス＋名称など） */
+    .input-pair {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 5px;
+      max-width: 500px;
+    }
+    .input-pair input[type="text"]:first-child { flex: 2; }
+    .input-pair input[type="text"]:last-child { flex: 1; }
+
+    /* チェックボックスグループ */
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    /* 独自の発信先グループ追加UI（画像をベースにリファイン） */
+    .group-selector-flex {
       display: flex;
       gap: 10px;
       align-items: center;
+      margin-top: 5px;
     }
-    .group-box {
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      height: 150px;
+    .group-list-box {
+      border: 1px solid var(--border-gray);
+      width: 180px;
+      height: 120px;
       overflow-y: auto;
-      padding: 5px;
-      width: 200px;
+      background: #fff;
     }
-    .group-item {
-      padding: 4px 8px;
+    .group-list-item {
+      padding: 4px;
       cursor: pointer;
-      border-radius: 3px;
     }
-    .group-item:hover { background: #e8f0fe; }
-    .group-item.selected { background: #cbdcf8; }
-    .group-btns {
+    .group-list-item:hover { background: #eee; }
+    .group-list-item.selected { background: #cbdcf8; }
+    
+    .group-action-btns {
       display: flex;
       flex-direction: column;
       gap: 5px;
     }
-    .group-btns button {
-      padding: 5px 10px;
-      font-size: 0.85rem;
-      cursor: pointer;
+
+    /* 赤枠（属性セクション）の再現 */
+    .attribute-red-box {
+      border: 2px solid #cc0000;
+      padding: 8px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
     }
-    .btn {
-      padding: 10px 20px;
-      font-size: 1rem;
+    .attribute-title {
+      width: 110px;
       font-weight: bold;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
     }
-    .btn-primary { background: var(--primary-color); color: #fff; }
-    .btn-danger { background: var(--danger-color); color: #fff; width: 100%; padding: 15px; font-size: 1.2rem; }
+
+    /* 配信ボタン・履歴テーブル等 */
+    .btn-emergency-send {
+      background: var(--danger-red);
+      color: white;
+      border: 1px solid #b0251b;
+      padding: 10px 30px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 3px;
+      width: 100%;
+      margin-top: 15px;
+    }
+    .btn-emergency-send:hover { background: #b0251b; }
+
     .history-table {
       width: 100%;
       border-collapse: collapse;
@@ -134,124 +280,226 @@
     }
     .history-table th, .history-table td {
       border: 1px solid #ddd;
-      padding: 10px;
+      padding: 6px;
       text-align: left;
-      font-size: 0.9rem;
     }
-    .history-table th { background: #f1f3f4; }
+    .history-table th { background: #f0f0f0; }
+
+    .counter {
+      text-align: right;
+      font-size: 11px;
+      color: #666;
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.24/jsrsasign-all-min.js"></script>
 </head>
 <body>
 
-<div class="wrapper">
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('send-tab')">メッセージ送信</button>
-    <button class="tab-btn" onclick="switchTab('template-tab')">定型文設定</button>
-    <button class="tab-btn" onclick="switchTab('history-tab')">配信履歴</button>
+<div class="top-nav">
+  <button class="top-nav-btn alert-btn">お知らせ⚠</button>
+  <button class="top-nav-btn" onclick="switchMainTab('send-tab', this)">連絡先</button>
+  <button class="top-nav-btn" onclick="switchMainTab('template-tab', this)">定型文設定</button>
+  <button class="top-nav-btn" onclick="switchMainTab('history-tab', this)">配信履歴</button>
+  <button class="top-nav-btn active">設定</button>
+  <button class="top-nav-btn">拡張設定</button>
+  <button class="top-nav-btn">通信料金</button>
+  <button class="top-nav-btn">サポート</button>
+</div>
+
+<div class="main-container">
+  
+  <div class="left-col">
+    <div class="col-title">グループ</div>
+    <ul class="group-tree-list">
+      <li class="group-tree-item">すべて</li>
+      <li class="group-tree-item">住民</li>
+      <li class="group-tree-item active">住民（多言語）</li>
+      <li class="group-tree-item">職員</li>
+      <li class="group-tree-item">テストグループ</li>
+      <li class="group-tree-item">市民課</li>
+      <li class="group-tree-item">市民健康課</li>
+      <li class="group-tree-item">共創推進課</li>
+      <li class="group-tree-item">行政経営室</li>
+      <li class="group-tree-item">秘書課</li>
+    </ul>
   </div>
 
-  <div id="send-tab" class="tab-content active">
-    <h2>メッセージ編集</h2>
-    <table class="form-table">
-      <tr>
-        <th>情報種別</th>
-        <td>
-          <select id="infoType">
-            <option value="緊急速報">緊急速報</option>
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <th>定型文の読込</th>
-        <td>
-          <select id="templateSelect" onchange="loadTemplate(this.value)">
-            <option value="">-- 登録された定型文から選択 --</option>
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <th>件名</th>
-        <td><input type="text" id="subject" placeholder="件名を入力してください"></td>
-      </tr>
-      <tr>
-        <th>本文</th>
-        <td>
-          <textarea id="body" rows="8" oninput="updateCounter()" placeholder="本文を入力してください"></textarea>
-          <div class="counter" id="charCounter">0文字</div>
-        </td>
-      </tr>
-      <tr>
-        <th>発信先グループ</th>
-        <td>
-          <div class="group-selector">
-            <div>
-              <div class="form-label" style="font-size:0.8rem;color:#666;">対象グループ</div>
-              <div id="availableGroups" class="group-box">
-                <div class="group-item" onclick="toggleSelectGroup(this, 'all_users')">全体配信 (all_users)</div>
-              </div>
-            </div>
-            <div class="group-btns">
-              <button onclick="addGroups()">追加 ➔</button>
-              <button onclick="removeGroups()">⇦ 削除</button>
-            </div>
-            <div>
-              <div class="form-label" style="font-size:0.8rem;color:#666;">選択済み</div>
-              <div id="selectedGroups" class="group-box"></div>
-            </div>
-          </div>
-        </td>
-      </tr>
-    </table>
-    <button class="btn btn-danger" onclick="sendEmergencyMessage()">一斉配信 (FCM)</button>
-  </div>
-
-  <div id="template-tab" class="tab-content">
-    <h2>登録されている定型文一覧</h2>
-    <p style="font-size:0.9rem; color:#666;">※新しい定型文を全端末に共通で追加したい場合は、HTMLファイルのコード内の「templates」配列に直接書き込んでください。</p>
-    <table class="history-table">
+  <div class="center-col">
+    <div class="col-title">連絡先 - 住民（多言語）</div>
+    <table class="contact-table">
       <thead>
         <tr>
-          <th>タイトル</th>
-          <th>件名</th>
-          <th>本文</th>
+          <th><input type="checkbox"> 名前</th>
+          <th>手段</th>
         </tr>
       </thead>
-      <tbody id="templateListLog"></tbody>
-    </table>
-  </div>
-
-  <div id="history-tab" class="tab-content">
-    <h2>配信履歴 (この端末のみ)</h2>
-    <table class="history-table">
-      <thead>
+      <tbody>
         <tr>
-          <th>配信日時</th>
-          <th>種別</th>
-          <th>件名</th>
-          <th>配信先</th>
-          <th>ステータス</th>
-        </tr>
-      </thead>
-      <tbody id="historyLog">
-        <tr>
-          <td colspan="5" style="text-align:center; color:#999;">履歴はありません</td>
+          <td colspan="2">連絡先はありません</td>
         </tr>
       </tbody>
     </table>
   </div>
+
+  <div class="right-col">
+    
+    <div class="action-bar">
+      <button class="btn-sys">保存</button>
+      <button class="btn-sys">キャンセル</button>
+    </div>
+
+    <div class="content-tab-wrapper">
+      
+      <div id="send-tab" class="tab-content active">
+        <div class="form-section-title">名前<span class="required-label">(必須):</span></div>
+        <div style="margin-bottom: 15px;">
+          <input type="text" id="subject" placeholder="件名・名前となる識別子を入力してください" value="緊急速報">
+        </div>
+
+        <div class="form-section-title">連絡先:</div>
+        <div class="inner-border-box">
+          <div class="form-grid">
+            <div class="form-row">
+              <div class="form-label-cell">情報種別:</div>
+              <div class="form-value-cell">
+                <select id="infoType">
+                  <option value="緊急速報">緊急速報</option>
+                  <option value="防災情報">防災情報</option>
+                  <option value="防犯情報">防犯情報</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label-cell">定型文の読込:</div>
+              <div class="form-value-cell">
+                <select id="templateSelect" onchange="loadTemplate(this.value)">
+                  <option value="">-- 登録された定型文から選択 --</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label-cell">本文:</div>
+              <div class="form-value-cell">
+                <textarea id="body" rows="4" oninput="updateCounter()" placeholder="本文を入力してください"></textarea>
+                <div class="counter" id="charCounter">0文字</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section-title">情報種別(配信属性):</div>
+        <div class="inner-border-box">
+          <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox" checked> 防災情報</label>
+            <label class="checkbox-label"><input type="checkbox"> 職員情報</label>
+            <label class="checkbox-label"><input type="checkbox"> 防犯情報</label>
+            <label class="checkbox-label"><input type="checkbox"> 配信</label>
+            <label class="checkbox-label"><input type="checkbox"> イベント情報</label>
+          </div>
+        </div>
+
+        <div class="form-section-title">グループ(配信対象):</div>
+        <div class="inner-border-box">
+          <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox"> 住民</label>
+            <label class="checkbox-label"><input type="checkbox"> 市民健康課</label>
+            <label class="checkbox-label"><input type="checkbox" checked> 住民（多言語）</label>
+            <label class="checkbox-label"><input type="checkbox"> 共創推進課</label>
+            <label class="checkbox-label"><input type="checkbox"> 職員</label>
+            <label class="checkbox-label"><input type="checkbox"> 行政経営室</label>
+            <label class="checkbox-label"><input type="checkbox"> テストグループ</label>
+            <label class="checkbox-label"><input type="checkbox"> 秘書課</label>
+          </div>
+          
+          <div class="group-selector-flex">
+            <div>
+              <div style="font-size:11px; color:#666;">対象グループ</div>
+              <div id="availableGroups" class="group-list-box">
+                <div class="group-list-item" onclick="toggleSelectGroup(this, 'all_users')">全体配信 (all_users)</div>
+              </div>
+            </div>
+            <div class="group-action-btns">
+              <button class="btn-sys" onclick="addGroups()">追加 ➔</button>
+              <button class="btn-sys" onclick="removeGroups()">⇦ 削除</button>
+            </div>
+            <div>
+              <div style="font-size:11px; color:#666;">選択済み設定</div>
+              <div id="selectedGroups" class="group-list-box"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section-title">受信する言語:</div>
+        <div style="margin-bottom: 15px;">
+          <select style="max-width:300px;">
+            <option>（指定なし：発信時の主言語を受信する）</option>
+          </select>
+        </div>
+
+        <div class="attribute-red-box">
+          <div class="attribute-title">属性:</div>
+          <div style="flex:1; display:flex; align-items:center; gap:10px;">
+            <span>SMS:</span>
+            <input type="text" style="max-width:250px; background:#fff;" placeholder="宛先ショートメッセージ番号">
+          </div>
+        </div>
+
+        <div class="form-section-title">登録者:</div>
+        <div class="inner-border-box">
+          <label style="margin-right:15px;"><input type="radio" name="registrant" checked> 管理者</label>
+          <label><input type="radio" name="registrant"> 本人(空メール登録)</label>
+        </div>
+
+        <button class="btn-emergency-send" onclick="sendEmergencyMessage()">一斉配信実行 (FCM)</button>
+      </div>
+
+      <div id="template-tab" class="tab-content">
+        <div class="form-section-title">登録されている定型文一覧</div>
+        <p style="color:#666; margin-bottom:10px;">※コード内の「templates」配列から編集・追加可能です。</p>
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>タイトル</th>
+              <th>件名</th>
+              <th>本文</th>
+            </tr>
+          </thead>
+          <tbody id="templateListLog"></tbody>
+        </table>
+      </div>
+
+      <div id="history-tab" class="tab-content">
+        <div class="form-section-title">配信履歴 (この端末のローカルログ)</div>
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>配信日時</th>
+              <th>種別</th>
+              <th>件名</th>
+              <th>配信先</th>
+              <th>ステータス</th>
+            </tr>
+          </thead>
+          <tbody id="historyLog">
+            <tr>
+              <td colspan="5" style="text-align:center; color:#999;">履歴はありません</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <script>
+  // 既存のFirebase設定・キーロジックを完全維持
   const CONFIG = {
     PROJECT_ID: "emapp-3fa37",
     CLIENT_EMAIL: "firebase-adminsdk-fbsvc@emapp-3fa37.iam.gserviceaccount.com",
     PRIVATE_KEY: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDXe9lrF8BmcdmT\nCSnMW+bZyI11F85RXI/QQlyYDDdRIX3paoEC28PbD7LSVS6cidIXpMuviOyyXqaA\nRpjCm/nFJBFdv2sNDh1jM8FujFDig4gfA0wx0lj7kkr9+daCe3lIGaG2OC/OAVss\n/tmAlCK9kGgk1VRUAvGqTFBaPamBpDB5vgv6s/7ZOe2nSqpECV9+4iIJTr4u24Uf\n4C6Jgw4JSTkyK0E/cQBAS1mSG3pVcPaBPei9jEdUo+Ah8CPN1vT5KjI+PKl+m9nx\nuwHASBmRo9IR+V/MqLPG/OzfSHAF8Nn+MsXv9pfIKGHlCsqsBsIAERdz2Bc5Vdtb\nfwqGhIffAgMBAAECggEASWufhwfOvJkqIxlKLqFZpPbai/0ShVJehf02g3AWIQSi\nXDe3wXuT3j4ZFeWEPj4PYZL6+9JRo+zwGmDzh8uRbQR/Dkw8c3RNuxFVZQ9WN/fN\nF5QOECO1wfH0r1jDKC5eAp0JJoc6cpyvrkMfZNoUhDaB5ZryYrWmFfpunnDIIq1o\nd5misuH9mrKK8z+fD3WImSzkz5J/bysu0VMdfnp0FjiIBZkLO6S1l4nZHYtycJyc\neFJEHsnbPC/YKxf9se0+nKC7715DM0Fx4zGF1OyvX7R2A7f7u0BgqJw9an4HuIPb\QgDHORy8E6RqE0G7qVB2c9b8sO6XTkxF0SM4CxYOwQKBgQD9rC+JWRYc5a9RmC5p\n+zCOq5TpKRLumPG3aL5HYnzqliXJnS/giwi2jUr0KSl8KxJ56ezj58J0zZ5V5/Bh\nmlqy5no5H7soJdwuZjw+FteD85m023z0wf/grxxrLrCbxmtAR/Jh45bcxdnbhdas\npdnZj15AnAumgBEgiH6wKXIMEQKBgQDZdfeuZX1Rcjiqh4x76POwB3KSxj2E3U52\nDYGHkSOYcpqd8UfzTbXACCpfCu5HTsSZYQM9RhIplmrbtGoAaGrNmJ86iKn300XW\nF+r5+Z2otmoqgm0bpeLbv8BWUrS9Z6ESXWbriS0FdFlT3Q/bOHTz8m+m2pqowGGY\nh43DpisE7wKBgQCkWlPuPA7sqA+f4OZpefqq5RY0vozqk6NAPpfRrkjawG85IiNr\n6wi5JfAjIywiq9FrtZjqzDSb8sCcTgrbYeNTt6oGqr1atLTkRw7O94OolULH/9EE\nz1CWZT4XX4fDVZoVasfqjkcnQPT2ms9MyqPLpmzdlXyi4qS2HFlgj2m50QKBgCQO\n5pH5bC08Jl9IeKf3OakfowTpcDv+wkra9HZ5P5DAuBimcIrMgO2lrPjzhA0452qT\nZokbfFl/ApsJsGX+6m7K9uQq0xwv4S2d662lkVnvXW1NETB7ckGD6y2lKykY7OFx\nsWYu6dM0trcsObvdAa+NrKvbJbgDpms3Vu9xN0LrAoGADVbAzlGjaEPAVnVQragQ\nbaVJMPUzB+1lDyB3jjemXPaxrh7PMQA4vYuKdttXtY7yMhZ3USbrackVH5su63yS\nS2e39gtBbepnTFwAvib+6fppUJkvB+21KlioVgmssHqlJ+GWoA9o4xozfN664BtI\n11OT3w2qo2IizJUuENFd7J4=\n-----END PRIVATE KEY-----\n"
   };
 
-  // ==========================================
-  // 💡【ここに共有したい定型文を好きなだけ追加してください】
-  // ==========================================
   let templates = [
     { 
       title: "【避難】大雨・河川氾濫", 
@@ -263,18 +511,18 @@
       subject: "地震発生に伴う注意喚起", 
       body: "ただいま、大きな地震がありました。\n皆さん、落ち着いて火の始末をしてください。\nあわてて外に飛び出すのは危険です。\n詳しい情報はテレビ、ラジオなどで確認してください。" 
     }
-    // カンマ（,）で区切ってここから下に同じ形式で増やせます
   ];
 
-  // 履歴はブラウザを閉じても「その端末」にだけ残るようにします
   let histories = JSON.parse(localStorage.getItem('fcm_histories')) || [];
   let tempSelectedTopic = null;
 
-  function switchTab(tabId) {
+  // 上部ナビゲーションから右側メインコンテンツ内の表示を切り替える関数
+  function switchMainTab(tabId, element) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.top-nav-btn').forEach(el => el.classList.remove('active'));
+    
     document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
+    element.classList.add('active');
   }
 
   function updateCounter() {
@@ -290,13 +538,11 @@
     listLog.innerHTML = "";
 
     templates.forEach((tpl, index) => {
-      // セレクトボックスへの追加
       const opt = document.createElement('option');
       opt.value = index;
       opt.textContent = tpl.title;
       select.appendChild(opt);
 
-      // 設定タブの確認一覧への追加
       const tr = document.createElement('tr');
       tr.innerHTML = `<td><b>${tpl.title}</b></td><td>${tpl.subject}</td><td><small>${tpl.body.replace(/\n/g, '<br>')}</small></td>`;
       listLog.appendChild(tr);
@@ -316,7 +562,7 @@
   }
 
   function toggleSelectGroup(element, topicId) {
-    document.querySelectorAll('.group-item').forEach(el => el.classList.remove('selected'));
+    document.querySelectorAll('.group-list-item').forEach(el => el.classList.remove('selected'));
     element.classList.add('selected');
     tempSelectedTopic = topicId;
   }
@@ -328,17 +574,17 @@
 
     const div = document.createElement('div');
     div.id = `sel-${tempSelectedTopic}`;
-    div.className = 'group-item';
+    div.className = 'group-list-item';
     div.textContent = tempSelectedTopic;
     div.onclick = function() {
-      document.querySelectorAll('#selectedGroups .group-item').forEach(el => el.classList.remove('selected'));
+      document.querySelectorAll('#selectedGroups .group-list-item').forEach(el => el.classList.remove('selected'));
       this.classList.add('selected');
     };
     selectedBox.appendChild(div);
   }
 
   function removeGroups() {
-    const selected = document.querySelector('#selectedGroups .group-item.selected');
+    const selected = document.querySelector('#selectedGroups .group-list-item.selected');
     if(selected) selected.remove();
   }
 
@@ -366,7 +612,7 @@
     const infoType = document.getElementById('infoType').value;
     const subject = document.getElementById('subject').value;
     const body = document.getElementById('body').value;
-    const targetGroups = document.querySelectorAll('#selectedGroups .group-item');
+    const targetGroups = document.querySelectorAll('#selectedGroups .group-list-item');
 
     if(targetGroups.length === 0) return alert("発信先グループを1つ以上「追加」してください。");
     if(!body) return alert("本文を入力してください。");
@@ -440,7 +686,6 @@
     }
   }
 
-  // 初期実行
   renderTemplateSelect();
   renderHistoryTable();
 </script>
