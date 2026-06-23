@@ -307,31 +307,22 @@
   <div class="left-col">
     <div class="col-title">グループ</div>
     <ul class="group-tree-list">
-      <li class="group-tree-item">すべて</li>
-      <li class="group-tree-item">住民</li>
-      <li class="group-tree-item active">住民（多言語）</li>
-      <li class="group-tree-item">職員</li>
-      <li class="group-tree-item">テストグループ</li>
-      <li class="group-tree-item">市民課</li>
-      <li class="group-tree-item">市民健康課</li>
-      <li class="group-tree-item">共創推進課</li>
-      <li class="group-tree-item">行政経営室</li>
-      <li class="group-tree-item">秘書課</li>
+      <li class="group-tree-item active">一斉</li>
     </ul>
   </div>
 
   <div class="center-col">
-    <div class="col-title">連絡先 - 住民（多言語）</div>
+    <div class="col-title">連絡先 - 一斉</div>
     <table class="contact-table">
       <thead>
         <tr>
-          <th><input type="checkbox"> 名前</th>
-          <th>手段</th>
+          <th><input type="checkbox"> デバイス</th>
+          <th>トークン</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td colspan="2">連絡先はありません</td>
+          <td colspan="2">登録がありません</td>
         </tr>
       </tbody>
     </table>
@@ -352,16 +343,14 @@
           <input type="text" id="subject" placeholder="件名・名前となる識別子を入力してください" value="緊急速報">
         </div>
 
-        <div class="form-section-title">連絡先:</div>
+        <div class="form-section-title">SDD:</div>
         <div class="inner-border-box">
           <div class="form-grid">
             <div class="form-row">
               <div class="form-label-cell">情報種別:</div>
               <div class="form-value-cell">
                 <select id="infoType">
-                  <option value="緊急速報">緊急速報</option>
-                  <option value="防災情報">防災情報</option>
-                  <option value="防犯情報">防犯情報</option>
+                  <option value="緊急速報">＊＊＊</option>
                 </select>
               </div>
             </div>
@@ -386,25 +375,15 @@
         <div class="form-section-title">情報種別(配信属性):</div>
         <div class="inner-border-box">
           <div class="checkbox-group">
-            <label class="checkbox-label"><input type="checkbox" checked> 防災情報</label>
-            <label class="checkbox-label"><input type="checkbox"> 職員情報</label>
-            <label class="checkbox-label"><input type="checkbox"> 防犯情報</label>
-            <label class="checkbox-label"><input type="checkbox"> 配信</label>
-            <label class="checkbox-label"><input type="checkbox"> イベント情報</label>
+            <label class="checkbox-label"><input type="checkbox" checked> 緊急一般</label>
+            <label class="checkbox-label"><input type="checkbox"> 試験配信</label>
           </div>
         </div>
 
         <div class="form-section-title">グループ(配信対象):</div>
         <div class="inner-border-box">
           <div class="checkbox-group">
-            <label class="checkbox-label"><input type="checkbox"> 住民</label>
-            <label class="checkbox-label"><input type="checkbox"> 市民健康課</label>
-            <label class="checkbox-label"><input type="checkbox" checked> 住民（多言語）</label>
-            <label class="checkbox-label"><input type="checkbox"> 共創推進課</label>
-            <label class="checkbox-label"><input type="checkbox"> 職員</label>
-            <label class="checkbox-label"><input type="checkbox"> 行政経営室</label>
-            <label class="checkbox-label"><input type="checkbox"> テストグループ</label>
-            <label class="checkbox-label"><input type="checkbox"> 秘書課</label>
+            <label class="checkbox-label"><input type="checkbox" checked> 一斉</label>
           </div>
           
           <div class="group-selector-flex">
